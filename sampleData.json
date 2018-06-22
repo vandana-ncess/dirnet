@@ -1,0 +1,1 @@
+{"cols":[{"label":"Research Area","type":"string"},{"label":"SCI","type":"number"},{"label":"NON-SCI","type":"number"},{"role":"annotation","type":"string","p":{"role":"annotation"}}],"rows":[{"c":[{"v":"CrP"},{"v":2},{"v":2},{"v":"2"}]},{"c":[{"v":"CoP"},{"v":3},{"v":2},{"v":"3"}]},{"c":[{"v":"HyP"},{"v":1},{"v":1},{"v":"1"}]},{"c":[{"v":"AtP"},{"v":0},{"v":0},{"v":"0"}]}]}
