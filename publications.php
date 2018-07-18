@@ -1,9 +1,8 @@
 <?php
-
-		// Create the chart - Column 2D Chart with data given in constructor parameter
-		// Syntax for the constructor - new FusionCharts("type of chart", "unique chart id", "width of chart", "height of chart", "div id to render the chart", "type of data", "actual data")
-		$conn = require_once('databaseconnection.php');
-		
+    $conn = require_once('databaseconnection.php');
+    $sql = "SELECT * FROM category where categoryName <>'Administrative Staff'";
+    $resultCat= mysqli_query($conn,$sql);
+    $resultCat1 = mysqli_query($conn,$sql);
 ?>
 <!DOCTYPE html>
 <!-- Website template by freewebsitetemplates.com -->
@@ -42,13 +41,37 @@
       });  
  });  
  </script>  
+ <script type="text/javascript">
+     function loadSearch(radio) {
+        var modal = document.getElementById('myModal')
+       // Get the button that opens the modal
+       // Get the <span> element that closes the modal
+       var span = document.getElementsByClassName("close")[0];;alert(span);
+       // When the user clicks on the button, open the modal 
+      if(radio.value == 2)
+               modal.style.display = "block";
+           else
+               modal.style.display = "none";
+       // When the user clicks on <span> (x), close the modal
+       span.onclick = function() {
+           modal.style.display = "none";
+       }
+       // When the user clicks anywhere outside of the modal, close it
+       window.onclick = function(event) {
+           if (event.target == modal) {
+               modal.style.display = "none";
+           }
+       }
+   }
+ </script>
     <script type="text/javascript">
         // Load the Visualization API and the piechart package.
-    google.charts.load('current', {'packages':['corechart','bar']});
+    google.charts.load('46', {'packages':['corechart','bar']});
     
     function loadCharts() {
-        loadDesignation();
-        loadDesignation1();
+        loadDesignation('ddlDesig',null);
+        loadDesignation('ddlSearDesig',null);
+        loadDesignation('ddlDesignation',null);
         google.charts.setOnLoadCallback(drawChart);
         google.charts.setOnLoadCallback(loadGraph);
         document.getElementById('txtEmp').value="Dr. N Purnachandra Rao";
@@ -84,9 +107,19 @@
       }; 
 var dataColumn1 = new google.visualization.DataTable(jsonData);
             // Instantiate and draw the chart.
-            var chart = new google.visualization.ColumnChart(document.getElementById('columnchart_material1'));
+            var chart_div1 = document.getElementById('columnchart_material1');
+            var chart = new google.visualization.ColumnChart(chart_div1);
+            google.visualization.events.addListener(chart, 'ready', function () {
+                    chart_div1.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                    console.log(chart_div1.innerHTML);
+                });
             chart.draw(dataColumn1, options);
-                var chart2 = new google.visualization.ColumnChart(document.getElementById('columnchart_material2'));
+            var chart_div2 = document.getElementById('columnchart_material2');
+                var chart2 = new google.visualization.ColumnChart(chart_div2);
+                google.visualization.events.addListener(chart2, 'ready', function () {
+                    chart_div2.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                    console.log(chart_div2.innerHTML);
+                });
 
                 chart2.draw(dataColumn1, options2);
                 
@@ -114,18 +147,23 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
                 async: false
                 }).responseText;
                 
-            var options = {title: 'Research Publications of '+ document.getElementById('txtEmp').value, bars: 'horizontal',isStacked: true,hAxis: {format: '0'}};  
+            var options = {title: 'Research Publications of '+ document.getElementById('txtEmp').value, bars: 'horizontal',isStacked: true,hAxis:  {grldlines: { multiple: 1 }}};  
  
             var dataColumn = new google.visualization.DataTable(jsonData);
+            var chart_div =document.getElementById('columnchart_emp');
             // Instantiate and draw the chart.
-            var chart = new google.visualization.BarChart(document.getElementById('columnchart_emp'));
+            var chart = new google.visualization.BarChart(chart_div);
+            google.visualization.events.addListener(chart, 'ready', function () {
+                    chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                    console.log(chart_div.innerHTML);
+                });
             chart.draw(dataColumn, options);
             }     
         };
         xmlhttp.open("GET","getData.php?mode=emp&year="+$year+"&emp="+$empID);
         xmlhttp.send();
     }
-    function loadComparisonGraph() {
+    function loadComaparisonGraph() {
         $desID = document.getElementById('ddlDesignation').value;
        // $year = " year BETWEEN " + document.getElementById('txtFromEmp').value + " AND " + document.getElementById('txtToEmp').value;
         if (window.XMLHttpRequest) {
@@ -144,11 +182,18 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
                 async: false
                 }).responseText;
                 
-            var options = { bars: 'horizontal',isStacked: true,hAxis: {format: '0'}};  
+            var options = { bars: 'horizontal',isStacked: true,hAxis: { grldlines: { multiple: 1 }}
+            };  
  
             var dataColumn = new google.visualization.DataTable(jsonData);
             // Instantiate and draw the chart.
-            var chart = new google.visualization.BarChart(document.getElementById('compchart_emp'));
+            var chart_div = document.getElementById('compchart_emp')
+            var chart = new google.visualization.BarChart(chart_div);
+            
+            google.visualization.events.addListener(chart, 'ready', function () {
+                    chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                    console.log(chart_div.innerHTML);
+                });
             chart.draw(dataColumn, options);
             }     
         };
@@ -157,7 +202,7 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
     }
     function drawChart() {
      // Set a callback to run when the Google Visualization API is loaded.
-     google.charts.setOnLoadCallback(drawChart1);
+       google.charts.setOnLoadCallback(drawChart1);
        $year = document.getElementById('ddlYear').value;
       
         if (window.XMLHttpRequest) {
@@ -180,24 +225,20 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
                 var dataColumn = new  google.visualization.DataTable(jsonData);
                 var viewSubTotalVariety = new google.visualization.DataView(dataColumn);
                   viewSubTotalVariety.setColumns([0, 1,2,
-                   //   { calc: "stringify",
-                     //          sourceColumn: 3,
-                     //          type: "string",
-                             
-                           //    role: "style" }
-                     // { calc: "stringify",
-                      //        sourceColumn: 3,
-                      //        type: "string",
-                      //        role: "annotation" },
-                  ]);
+                 ]);
                 var options = {
                   title: "Research Publication for the Year " + document.getElementById('ddlYear').value,
                  // bars: 'horizontal', // Required for Material Bar Charts.
                 //isStacked: true,
                bars: 'horizontal',
-                hAxis: {format: '0'}
+                hAxis:  {grldlines: { multiple: 1 }}
                 };
-                var chart =  new google.visualization.BarChart(document.getElementById("columnchart_values"));
+                var chart_div=document.getElementById("columnchart_values");
+                var chart =  new google.visualization.BarChart(chart_div);
+                google.visualization.events.addListener(chart, 'ready', function () {
+                    chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                    console.log(chart_div.innerHTML);
+                });
                 chart.draw(viewSubTotalVariety, options);
                  
              // var chart = new google.visualization.ColumnChart(document.getElementById("barchart_values"));
@@ -237,7 +278,12 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
            //     var viewPie = new google.visualization.DataView(dataPie);
 //viewPie.setColumns([1,{calc:sum, type:'number', label:'Height in Inches'}]);
                 // Instantiate and draw our chart, passing in some options.
-                var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+                var chart_div = document.getElementById('chart_div')
+                var chart = new google.visualization.PieChart(chart_div);
+                google.visualization.events.addListener(chart, 'ready', function () {
+                    chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+                    console.log(chart_div.innerHTML);
+                });
                 chart.draw(dataPie, {width: 520, height: 300});
                
             }
@@ -250,8 +296,7 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
     }
     function loadJSON()
     {
-        
-       $year = document.getElementById('ddlYear').value;
+        $year = document.getElementById('ddlYear').value;
        
         if (window.XMLHttpRequest) {
             // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -267,9 +312,9 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
         xmlhttp.open("GET","getData.php?mode=year&year="+$year);
         xmlhttp.send();
     }
-    function loadDesignation() {
-        $catID = document.getElementById('ddlCat').value;
-          if (window.XMLHttpRequest) {
+    function loadDesignation($ddl,$catID) {
+        $ddlDes = document.getElementById($ddl);
+        if (window.XMLHttpRequest) {
             // code for IE7+, Firefox, Chrome, Opera, Safari
             xmlhttp = new XMLHttpRequest();
         } else {
@@ -278,31 +323,14 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
         }
         xmlhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                str = "<select name='ddlDesig' id='ddlDesig'>";
-                document.getElementById("ddlDesig").innerHTML = str + this.responseText + "<select>" ;
+               $ddlDes.innerHTML = "<select name = '" + $ddl + "' id='"+ $ddl+"' >" +  this.responseText + "</select>"  ;
                 loadEmployee();
             }
         };
         xmlhttp.open("GET","getDesignation.php?catID="+$catID);
         xmlhttp.send();
     }
-    function loadDesignation1() {
-          if (window.XMLHttpRequest) {
-            // code for IE7+, Firefox, Chrome, Opera, Safari
-            xmlhttp = new XMLHttpRequest();
-        } else {
-            // code for IE6, IE5
-            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-        }
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                str = "<select name='ddlDesignation' id='ddlDesignation'>";
-                document.getElementById("ddlDesignation").innerHTML = str + this.responseText + "<select>" ;
-            }
-        };
-        xmlhttp.open("GET","getDesignation.php?catID=0");
-        xmlhttp.send();
-    }
+    
     function loadEmployee() {
         $catID = document.getElementById('ddlCat').value;
           $desigID = document.getElementById('ddlDesig').value;
@@ -326,6 +354,39 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
         xmlhttp.open("GET","getEmployee.php?str="+$str);
         xmlhttp.send();
     }
+    function loadEmp()
+      {alert('hi');
+          document.getElementById('btnSave').style.display = "none";
+          $catID = document.getElementById('ddlSearCat').value;
+          $desigID = document.getElementById('ddlSearDesig').value;
+          $divID = document.getElementById('ddlSearDiv').value;
+          $empName = document.getElementById('txtSearEmp').value;
+          $str = "";
+          if($catID>0)
+              $str = $str + " AND A.categoryID=" + $catID;
+          if($desigID>0)
+               $str = $str + " AND A.designationID=" + $desigID;
+          if($divID>=0)
+              $str = $str + " AND A.divisionID =" + $divID;
+          if($empName != '')
+              $str = $str + " AND employeeName like '%" + $empName + "%'";
+          if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {
+            // code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById('btnSave').style.display = "block";
+                document.getElementById("tblEmp").innerHTML = this.responseText ;
+               
+            }
+        };
+        xmlhttp.open("GET","getUser.php?str="+$str+"&menuID="+$menuID);
+        xmlhttp.send();
+      }
     </script>    
     <script>
         autocomplete(document.getElementById("myInput"), employees);
@@ -412,11 +473,9 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td width="200px">Category<select onchange="loadDesignation()" class="form-control" name="ddlCat" id="ddlCat" >
+                                        <td width="200px">Category<select onchange="loadDesignation('ddlDesig',this.value)" class="form-control" name="ddlCat" id="ddlCat" >
                                             <?php
-                                                $sql = "SELECT * FROM category where categoryName <>'Administrative Staff'";
-                                                $result= mysqli_query($conn,$sql);
-                                                while($data = mysqli_fetch_array($result)) {
+                                                while($data = mysqli_fetch_array($resultCat)) {
                                                     echo '<option value="' . $data['categoryID'] . '">' . $data['categoryName'] .'</option>';
                                                 }
                                             ?>
@@ -446,23 +505,29 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
                                     </tr>
                                     <tr>
                                         <td colspan="6">
-                                            <table>
+                                            <table width="100%">
                                                 <tr>
                                                     <td>
-                                                        <input type="radio" name="rdoDesig" id="rdoDesig" value="desig" />Designation wise
+                                                        <input type="radio" name="rdoDesig"  value="1" onchange="loadSearch(this)" />Designation wise
                                                     </td>
                                                     <td>
-                                                        <select name="ddlDesignaion" id="ddlDesignation" class="form-control" onchange="google.charts.setOnLoadCallback(loadComaparisonGraph" >
+                                                        <select name="ddlDesignaion" id="ddlDesignation" class="form-control" onchange="google.charts.setOnLoadCallback(loadComaparisonGraph)" >
                                                             
                                                         </select>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <input type="radio" name="rdoDesig" id="rdoDesig" value="custom"/>Custom
+                                                        <input type="radio" name="rdoDesig"   value="2" onchange="loadSearch(this)"/>Custom
                                                     </td>
                                                     <td>
                                                         <input type="text" name="txtName" id="txtName" />
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" >
+                                                        <div id="compchart_emp" style="width: 90%; height: 600px;float: left;"></div>                
+                                            </div>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -521,6 +586,67 @@ var dataColumn1 = new google.visualization.DataTable(jsonData);
 			</div>
 		</div>
 	</div>
+        <div id="myModal" class="modal">
+  <!-- Modal content -->
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <p>Select Employees</p>
+              <table>
+                  <tr>
+                      <td>Search</td>
+                  </tr>
+                  <tr>
+                            <td  style="padding-top: 20px;">Division</td>
+                            <td style="padding-top: 20px;">
+                                <select id="ddlSearDiv" name="ddlSearDiv"  style="width: 300px;"><option value="-1">All</option>
+                                    <?php
+                                        $sql = "SELECT divisionID,divisionName FROM division WHERE divisionStatus=1";
+                                        $result = mysqli_query($conn,$sql);
+                                        if(mysqli_num_rows($result) > 0)
+                                        {
+                                            while ($row = mysqli_fetch_array($result)) {
+                                                echo "<option value=" . $row['divisionID'] . ">" . $row['divisionName'] . "</option>";
+                                            }
+                                        }
+                                    ?>
+                                </select>
+                            </td>
+                            <td  style="padding-top: 20px;padding-left: 5px;">Category</td>
+                            <td style="padding-top: 20px;">
+                                <select id="ddlSearCat" name="ddlSearCat" onchange="loadDesignation('ddlSearDesig',this.value)" style="width: 300px;" ><option value="null">All</option>
+                            <?php
+                                    while ($row = mysqli_fetch_array($resultCat1)) {
+                                        echo "<option value=" . $row['categoryID'] . ">" . $row['categoryName'] . "</option>";
+                                    }
+                                    echo "<script>loadDesignation('ddlSearDesig',document.getElementById('ddlSearCat').value);</script>";
+                            ?>
+                            </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >Designation</td>
+                            <td>
+                                <select id="ddlSearDesig" name="ddlSearDesig" onload="loadDesignation('ddlSearDesig',document.getElementById('ddlSearCat').value)"  style="width: 300px;">
+                                </select>
+                            </td>
+                            <td   style="padding-left: 5px;">Name</td><td colspan="3"><input type="text" name="txtSearEmp" id="txtSearEmp" style="width: 250px;" /> </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" align="right" style="padding: 10px;"><input type="button" name="btnSearch" id="btnSearch" value="Search" onclick="loadEmp()" /></td>
+                        </tr>
+                        <tr align="right">
+			    <td colspan="4" align="left" bgcolor="#424066" height="25px;" style="color: white;" ></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top: 10px;"><div style="overflow-y:scroll;max-height: 350px;"> <table id ="tblEmp" style="overflow-x:   scroll;overflow-y: auto;"></table></div></td>
+                        </tr>
+                    <tr>
+                        <td colspan="4" align="right"><input type='submit' name='btnSave' id='btnSave' value='Save' style="display: none;float: right;"  /> </td> 
+                    </tr>
+                   
+              </table>
+            </div>
+        </div>
         <script type="text/javascript">
             $(function() {
     $("#txtName").autocomplete({
